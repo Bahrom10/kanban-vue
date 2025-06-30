@@ -14,7 +14,7 @@
                     <div class="mb-4 flex flex-col g-2">
                         <input type="text" id="cardName" name="CardName" required class="border-1 mt-0.5 p-1 block w-full border-gray-300 outline-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter Card Name" v-model="cardName" maxlength="20">
                         <textarea id="description" name="description" required class="border-1 mt-0.5 p-1 block w-full border-gray-300 outline-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter Card description" v-model="description" rows="2"></textarea>
-                        <input type="date" id="date" name="date" required class="border-1 mt-0.5 p-1 block w-full border-gray-300 outline-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter Card Name" v-model="date" maxlength="20">
+                        <input type="date" :min="new Date().toISOString().split('T')[0]" id="date" name="date" required class="border-1 mt-0.5 p-1 block w-full border-gray-300 outline-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Enter Card Name" v-model="date" maxlength="20">
                     </div>
                     <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Add Card</button>
                 </form>
@@ -37,10 +37,11 @@ export default {
         }
     },
     data() {
+        const today = new Date().toISOString().split('T')[0];
         return {
             cardName: '',
             description: '',
-            date: ''
+            date: today
         };
     },
     emits: ["close", "add-card"],

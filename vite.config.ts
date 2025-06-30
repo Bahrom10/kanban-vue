@@ -4,6 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(),tailwindcss()],
-  base: '/kanban-vue/', 
+  plugins: [vue(), tailwindcss()],
+  base: '/kanban-vue/', // <-- this is correct if your repo is named 'kanban-vue'
 })

@@ -7,7 +7,7 @@
         <AddCard :isOpen="modalCardOpen" v-if="modalCardOpen"  :column-name="columnTitle" @close="modalCardOpen = false" @add-card="addTask"/>
   </Transition>
   <draggable
-    v-model="columns"
+    v-model="filteredColumns"
     group="columns"
     item-key="title"
     class="flex h-full"
@@ -21,10 +21,11 @@
         :tasks="element.tasks"
         @remove-column="id => columns.splice(id, 1) && saveColumnsToStorage()"
         @update:tasks="tasks => { console.log(tasks);columns[index].tasks = tasks; saveColumnsToStorage(); }"
-        @open-task-modal="openTaskModal" 
-        @remove-task="removeTask" 
+        @open-task-modal="openTaskModal"
+        @remove-task="removeTask"
         @card-moved="handleCardMoved"
         @dragstart="removeDragImage"
+        @searchQuery="(str: string) => search = str"
       />
     </template>
   </draggable>
@@ -143,6 +144,16 @@ export default {
             if(event.dataTransfer) event.dataTransfer.setDragImage(img, 0, 0);
             setTimeout(() => document.body.removeChild(img), 0);
         }
+  },
+  computed: {
+    filteredColumns() {
+      if (!this.search) return this.columns;
+      const searchLower = this.search.toLowerCase();
+      return this.columns.map(column => ({
+        ...column,
+        tasks: column.tasks.filter(task => task.title.toLowerCase().includes(searchLower))
+      })).filter(column => column.tasks.length > 0);
+    }
   }
 
 }
