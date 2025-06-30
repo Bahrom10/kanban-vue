@@ -1,32 +1,21 @@
 <template>
-  <Navbar @open-modal="modalColumnOpen = true" />
+  <Navbar @open-modal="modalColumnOpen = true" @search-query="filterColumns" />
   <Transition name="slide-down" mode="out-in">
-    <AddColumn :isOpen="modalColumnOpen" @close="modalColumnOpen = false" @add-column="handleAddColumn" v-if="modalColumnOpen" />
+    <AddColumn :isOpen="modalColumnOpen" @close="modalColumnOpen = false" @add-column="handleAddColumn"
+      v-if="modalColumnOpen" />
   </Transition>
   <Transition name="slide-down" mode="out-in">
-        <AddCard :isOpen="modalCardOpen" v-if="modalCardOpen"  :column-name="columnTitle" @close="modalCardOpen = false" @add-card="addTask"/>
+    <AddCard :isOpen="modalCardOpen" v-if="modalCardOpen" :column-name="columnTitle" @close="modalCardOpen = false"
+      @add-card="addTask" />
   </Transition>
-  <draggable
-    v-model="filteredColumns"
-    group="columns"
-    item-key="title"
-    class="flex h-full"
-    :animation="200"
-    @update:list="saveColumnsToStorage"
-  >
+  <draggable v-model="filteredColumns" group="columns" item-key="title" class="flex h-full" :animation="200"
+    @update:list="saveColumnsToStorage">
     <template #item="{ element, index }">
-      <Column
-        :index="index"
-        :title="element.title"
-        :tasks="element.tasks"
+      <Column :index="index" :title="element.title" :tasks="element.tasks"
         @remove-column="id => columns.splice(id, 1) && saveColumnsToStorage()"
-        @update:tasks="tasks => { console.log(tasks);columns[index].tasks = tasks; saveColumnsToStorage(); }"
-        @open-task-modal="openTaskModal"
-        @remove-task="removeTask"
-        @card-moved="handleCardMoved"
-        @dragstart="removeDragImage"
-        @searchQuery="(str: string) => search = str"
-      />
+        @update:tasks="tasks => { console.log(tasks); columns[index].tasks = tasks; saveColumnsToStorage(); }"
+        @open-task-modal="openTaskModal" @remove-task="removeTask" @card-moved="handleCardMoved"
+        @dragstart="removeDragImage" @searchQuery="(str: string) => search = str" />
     </template>
   </draggable>
 </template>
@@ -44,13 +33,15 @@ export default {
     columns: Array<Column>,
     modalCardOpen: boolean,
     columnTitle: string,
+    filteredColumns?: Array<Column>
   } {
     return {
       search: '',
       modalColumnOpen: false,
       columns: [],
       modalCardOpen: false,
-      columnTitle: ''
+      columnTitle: '',
+      filteredColumns:[]
     };
   },
   name: "app",
@@ -63,6 +54,7 @@ export default {
   },
   created() {
     this.loadColumnsFromStorage();
+    this.filterColumns("")
     const userPref = localStorage.getItem('darkMode');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -114,15 +106,15 @@ export default {
         console.log(this.columns);
       });
     },
-    handleColumnChange(){
+    handleColumnChange() {
 
     },
-    openTaskModal(title: string){
+    openTaskModal(title: string) {
       console.log("addTask called with:", title);
       this.modalCardOpen = true;
       this.columnTitle = title
     },
-    addTask(task: Task){
+    addTask(task: Task) {
       this.columns.find(el => el.title === this.columnTitle)?.tasks.push(task)
       this.saveColumnsToStorage()
     },
@@ -137,25 +129,23 @@ export default {
       this.saveColumnsToStorage();
     },
     removeDragImage(event: DragEvent) {
-            const img = new Image();
-            img.src = '';
-            img.style.display = 'none';
-            document.body.appendChild(img);
-            if(event.dataTransfer) event.dataTransfer.setDragImage(img, 0, 0);
-            setTimeout(() => document.body.removeChild(img), 0);
-        }
-  },
-  computed: {
-    filteredColumns() {
-      if (!this.search) return this.columns;
-      const searchLower = this.search.toLowerCase();
-      return this.columns.map(column => ({
+      const img = new Image();
+      img.src = '';
+      img.style.display = 'none';
+      document.body.appendChild(img);
+      if (event.dataTransfer) event.dataTransfer.setDragImage(img, 0, 0);
+      setTimeout(() => document.body.removeChild(img), 0);
+    },
+    filterColumns(search: string) {
+      if (!search) this.filteredColumns = this.columns;
+      this.search = search
+      const searchLower = search.toLowerCase();
+      this.filteredColumns = this.columns.map(column => ({
         ...column,
-        tasks: column.tasks.filter(task => task.title.toLowerCase().includes(searchLower))
-      })).filter(column => column.tasks.length > 0);
+        tasks: column.tasks.filter(task => task.title.toLowerCase().includes(searchLower) || task.description.toLowerCase().includes(searchLower) || task.date.includes(searchLower))
+      }));
     }
-  }
-
+  },
 }
 </script>
 
