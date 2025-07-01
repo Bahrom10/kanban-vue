@@ -39,6 +39,7 @@ export default {
     methods: {
         closeModal() {
             this.$emit("close");
+            setTimeout(location.reload, 300)
         },
         createColumn(){
             if (this.columnName.trim() === '') {

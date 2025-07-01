@@ -48,6 +48,7 @@ export default {
     methods: {
         closeModal() {
             this.$emit("close");
+            location.reload()
         },
         createCard(){
             if (this.cardName.trim() === '') {
